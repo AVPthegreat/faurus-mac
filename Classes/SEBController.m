@@ -6201,10 +6201,6 @@ bool insideMatrix(void){
 
 // Open background windows on all available screens to prevent Finder becoming active when clicking on the desktop background
 - (void) coverScreens {
-#if DEBUG
-    DDLogDebug(@"[DEBUG] coverScreens bypassed for development mode.");
-    return;
-#else
     DDLogDebug(@"%s Open background windows on all available screens", __FUNCTION__);
     NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
     BOOL allowSwitchToThirdPartyApps = ![preferences secureBoolForKey:@"org_safeexambrowser_elevateWindowLevels"];
@@ -6226,7 +6222,6 @@ bool insideMatrix(void){
         [self.capWindows removeAllObjects];
         [self.capWindows addObjectsFromArray:backgroundCoveringWindows];
     }
-#endif
 }
 
                            
@@ -7889,8 +7884,9 @@ conditionallyForWindow:(NSWindow *)window
     NSApplicationPresentationOptions presentationOptions;
     
 #if DEBUG
-    // In Debug / Development mode: keep macOS Dock, Menu Bar, and App Switcher active
-    presentationOptions = NSApplicationPresentationDefault;
+    // In Debug / Development mode: hide native macOS Dock so Faurus bottom dock and browser window meet seamlessly with 0px gap,
+    // while keeping App Switcher (Cmd+Tab) enabled so developers can switch between apps freely
+    presentationOptions = NSApplicationPresentationHideDock;
     [preferences setSecureBool:NO forKey:@"org_safeexambrowser_elevateWindowLevels"];
 #else
         if (allowSwitchToThirdPartyApps) {

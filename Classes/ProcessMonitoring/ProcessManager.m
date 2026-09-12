@@ -127,6 +127,10 @@ static ProcessManager *sharedProcessManager = nil;
 
     NSDictionary *prohibitedProcess;
         
+#if DEBUG
+    // In Debug / Development mode: do not register prohibited applications
+    DDLogInfo(@"[DEBUG] ProcessManager: prohibited applications list kept empty for development.");
+#else
     for (prohibitedProcess in _prohibitedProcesses) {
         
         if (!(_isAACActive && [prohibitedProcess[@"ignoreInAAC"] boolValue] == YES)) {
@@ -138,6 +142,7 @@ static ProcessManager *sharedProcessManager = nil;
             }
         }
     }
+#endif
     
     NSDictionary *permittedProcess;
     for (permittedProcess in _permittedProcesses) {

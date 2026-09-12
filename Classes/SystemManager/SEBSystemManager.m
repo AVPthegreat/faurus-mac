@@ -195,6 +195,10 @@ Boolean GetHTTPSProxySetting(char *host, size_t hostSize, UInt16 *port);
 
 - (void) preventScreenCapture
 {
+#if DEBUG
+    DDLogDebug(@"[DEBUG] preventScreenCapture bypassed for development mode.");
+    return;
+#else
     // On OS X 10.10 and later it's not necessary to redirect and delete screenshots,
     // as NSWindowSharingType = NSWindowSharingNone works correctly
     NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
@@ -265,6 +269,7 @@ Boolean GetHTTPSProxySetting(char *host, size_t hostSize, UInt16 *port);
         
         return;
     }
+#endif
 }
 
 

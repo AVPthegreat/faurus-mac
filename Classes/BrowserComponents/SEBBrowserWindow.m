@@ -240,6 +240,12 @@
         NSInteger windowPositioning;
         if (isMainBrowserWindow) {
             // This is the main browser window
+#if DEBUG
+            // In Debug mode: standard floating window centered on screen
+            windowWidth = @"80%";
+            windowHeight = @"80%";
+            windowPositioning = browserWindowPositioningCenter;
+#else
             if (_isFullScreen) {
                 // Full screen windows cover the whole screen
                 windowWidth = @"100%";
@@ -250,6 +256,7 @@
                 windowHeight = [preferences secureStringForKey:@"org_safeexambrowser_SEB_mainBrowserWindowHeight"];
                 windowPositioning = [preferences secureIntegerForKey:@"org_safeexambrowser_SEB_mainBrowserWindowPositioning"];
             }
+#endif
         } else if (isTemporaryWindow) {
             // This is a temporary browser window used for downloads with authentication
             windowWidth = @"1050";

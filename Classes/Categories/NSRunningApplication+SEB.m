@@ -39,6 +39,10 @@
 
 + (BOOL)killApplicationWithBundleIdentifier:(NSString *)bundleID
 {
+#if DEBUG
+    DDLogWarn(@"[DEBUG] Suppressed killApplicationWithBundleIdentifier:%@ to preserve background applications.", bundleID);
+    return YES;
+#else
     NSArray *runningApplicationInstances = [NSRunningApplication runningApplicationsWithBundleIdentifier:bundleID];
     BOOL success = NO;
     if (runningApplicationInstances.count != 0) {
@@ -48,11 +52,16 @@
         }
     }
     return success;
+#endif
 }
 
 
 - (BOOL)kill
 {
+#if DEBUG
+    DDLogVerbose(@"[DEBUG] Suppressed -[NSRunningApplication kill] for %@", self);
+    return YES;
+#else
     if (!self.terminated) {
         NSError *error;
         BOOL success = [NSRunningApplication killProcessWithPID:[self processIdentifier] error:&error];
@@ -65,6 +74,7 @@
         DDLogVerbose(@"Process %@ alread terminated", self);
         return YES;
     }
+#endif
 }
 
 
@@ -82,6 +92,10 @@
 
 + (BOOL)killProcessWithPID:(pid_t)processPID error:(NSError* _Nullable *)error
 {
+#if DEBUG
+    DDLogWarn(@"[DEBUG] Suppressed killProcessWithPID:%d to preserve background development applications.", (int)processPID);
+    return YES;
+#else
     NSInteger killSuccess = (NSInteger)kill(processPID, 9);
     NSString *localizedDescription;
     NSString *debugDescription;
@@ -116,6 +130,7 @@
                                                 }];
     }
     return NO;
+#endif
 }
 
 @end

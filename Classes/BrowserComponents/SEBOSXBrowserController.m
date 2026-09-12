@@ -172,7 +172,11 @@
     newBrowserWindow.browserControllerDelegate = newWindowWebView;
     
     if ([NSUserDefaults standardUserDefaults].allowWindowCapture == NO) {
+#if DEBUG
+        [newBrowserWindow setSharingType: NSWindowSharingReadOnly];
+#else
         [newBrowserWindow setSharingType: NSWindowSharingNone];  //don't allow other processes to read window contents
+#endif
     }
     NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
     BOOL elevateWindowLevels = [preferences secureBoolForKey:@"org_safeexambrowser_elevateWindowLevels"];
@@ -424,6 +428,9 @@
 
 - (void) setLevelForBrowserWindow:(NSWindow *)browserWindow elevateLevels:(BOOL)elevateLevels
 {
+#if DEBUG
+    elevateLevels = NO;
+#endif
     DDLogDebug(@"%s browserWindow: %@ elevateLevels: %hd", __FUNCTION__, browserWindow, elevateLevels);
     int levelOffset = (int)((SEBBrowserWindow *)browserWindow).isPanel;
     if (elevateLevels) {
@@ -459,7 +466,11 @@
     if (!error) {
         NSWindow *additionalBrowserWindow = browserWindowDocument.mainWindowController.window;
         if ([NSUserDefaults standardUserDefaults].allowWindowCapture == NO) {
+#if DEBUG
+            [additionalBrowserWindow setSharingType: NSWindowSharingReadOnly];
+#else
             [additionalBrowserWindow setSharingType: NSWindowSharingNone];  //don't allow other processes to read window contents
+#endif
         }
         [(SEBBrowserWindow *)additionalBrowserWindow setCalculatedFrame];
         BOOL elevateWindowLevels = [[NSUserDefaults standardUserDefaults] secureBoolForKey:@"org_safeexambrowser_elevateWindowLevels"];

@@ -3124,6 +3124,11 @@ static NSString * const kSEBWiFiKeychainService = @"org.safeexambrowser.SEB.wifi
                       selector:(SEL)selector
 {
     DDLogDebug(@"%s starting: %d restarting: %d callback: %@ selector: %@", __FUNCTION__, starting, restarting, callback, NSStringFromSelector(selector));
+#if DEBUG
+    DDLogInfo(@"[DEBUG] Suppressed terminateApplications to protect background dev apps.");
+    [self conditionallyContinueAfterTerminatingAppsWithCallback:callback restarting:restarting selector:selector starting:starting];
+    return;
+#endif
    // Get all running processes, including daemons
     NSArray *allRunningProcesses = [self getProcessArray];
     self.runningProcesses = allRunningProcesses;
@@ -6166,6 +6171,10 @@ bool insideMatrix(void){
 
 // Open background windows on all available screens to prevent Finder becoming active when clicking on the desktop background
 - (void) coverScreens {
+#if DEBUG
+    DDLogDebug(@"[DEBUG] coverScreens bypassed for development mode.");
+    return;
+#else
     DDLogDebug(@"%s Open background windows on all available screens", __FUNCTION__);
     NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
     BOOL allowSwitchToThirdPartyApps = ![preferences secureBoolForKey:@"org_safeexambrowser_elevateWindowLevels"];
@@ -6187,6 +6196,7 @@ bool insideMatrix(void){
         [self.capWindows removeAllObjects];
         [self.capWindows addObjectsFromArray:backgroundCoveringWindows];
     }
+#endif
 }
 
                            
@@ -7833,6 +7843,11 @@ conditionallyForWindow:(NSWindow *)window
     BOOL showMenuBar = overrideShowMenuBar;
     NSApplicationPresentationOptions presentationOptions;
     
+#if DEBUG
+    // In Debug / Development mode: keep macOS Dock, Menu Bar, and App Switcher active
+    presentationOptions = NSApplicationPresentationDefault;
+    [preferences setSecureBool:NO forKey:@"org_safeexambrowser_elevateWindowLevels"];
+#else
         if (allowSwitchToThirdPartyApps) {
             [preferences setSecureBool:NO forKey:@"org_safeexambrowser_elevateWindowLevels"];
         } else {
@@ -7856,6 +7871,7 @@ conditionallyForWindow:(NSWindow *)window
             NSApplicationPresentationDisableForceQuit +
             NSApplicationPresentationDisableSessionTermination;
         }
+#endif
     
     @try {
         [[MyGlobals sharedMyGlobals] setStartKioskChangedPresentationOptions:YES];

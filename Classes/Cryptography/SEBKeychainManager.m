@@ -278,6 +278,9 @@
 // Add key with ID to the keychain
 - (BOOL) storeKeyWithID:(NSString *)keyID keyData:(NSData *)keyData
 {
+#if DEBUG
+    return YES;
+#else
     NSString *service = [[NSBundle mainBundle] bundleIdentifier];
     NSDictionary *query = [NSDictionary dictionaryWithObjectsAndKeys:
                            (__bridge id)kSecClassGenericPassword, (__bridge id)kSecClass,
@@ -295,6 +298,7 @@
         return [self updateKeyWithID:keyID keyData:keyData];
     }
     return (status == errSecSuccess);
+#endif
 }
 
 
@@ -332,6 +336,9 @@
 // Update a key with ID in the keychain
 - (BOOL) updateKeyWithID:(NSString *)keyID keyData:(NSData *)keyData
 {
+#if DEBUG
+    return YES;
+#else
     NSString *service = [[NSBundle mainBundle] bundleIdentifier];
     NSDictionary *query = [NSDictionary dictionaryWithObjectsAndKeys:
                            (__bridge id)kSecClassGenericPassword, (__bridge id)kSecClass,
@@ -350,6 +357,7 @@
         DDLogError(@"%s: SecItemUpdate failed with error: %@", __FUNCTION__, outError);
     }
     return (status == errSecSuccess);
+#endif
 }
 
 
@@ -387,6 +395,16 @@
 // Get a key with ID from the keychain
 - (NSData *) retrieveKeyWithID:(NSString *)keyID
 {
+#if DEBUG
+    // In development mode, return deterministic key to bypass macOS Keychain prompt
+    static const unsigned char devKey[32] = {
+        0x46, 0x61, 0x75, 0x72, 0x75, 0x73, 0x44, 0x65,
+        0x76, 0x4d, 0x6f, 0x64, 0x65, 0x4b, 0x65, 0x79,
+        0x32, 0x30, 0x32, 0x36, 0x44, 0x65, 0x76, 0x65,
+        0x6c, 0x6f, 0x70, 0x65, 0x72, 0x4b, 0x65, 0x79
+    };
+    return [NSData dataWithBytes:devKey length:32];
+#else
     NSString *service = [[NSBundle mainBundle] bundleIdentifier];
     NSDictionary *query = [NSDictionary dictionaryWithObjectsAndKeys:
                            (__bridge id)kSecClassGenericPassword, (__bridge id)kSecClass,
@@ -405,6 +423,7 @@
         return nil;
     }
     return (__bridge_transfer NSData *)keyData;
+#endif
 }
 
 

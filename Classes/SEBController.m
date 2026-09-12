@@ -1383,6 +1383,13 @@ bool insideMatrix(void);
 // student can no longer reach System Settings to grant the permission.
 - (void) requestLocationServicesAuthorizationWithContinuation:(void (^)(void))continuation
 {
+#if DEBUG
+    DDLogDebug(@"[DEBUG] Bypassing Location Services authorization for development mode.");
+    if (continuation) {
+        continuation();
+    }
+    return;
+#endif
     // Location Services is only needed to read the current Wi-Fi SSID for the Wi-Fi
     // controls. If those are hidden in the active session's settings, never request it.
     // Checked here (not cached) so a reconfigured session that now shows the Wi-Fi
@@ -1548,6 +1555,13 @@ bool insideMatrix(void);
 - (void) presentLocationServicesWaitAlertRaisingSystemSettings:(BOOL)raiseSystemSettings
                                                     completion:(void (^)(void))completion
 {
+#if DEBUG
+    DDLogDebug(@"[DEBUG] Bypassing Location Services prompt for development mode.");
+    if (completion) {
+        completion();
+    }
+    return;
+#endif
     if (@available(macOS 11.0, *)) {
         // If access was already granted (e.g. quickly via the system prompt), continue immediately
         CLLocationManager *freshManager = [[CLLocationManager alloc] init];
@@ -3416,8 +3430,11 @@ static NSString * const kSEBWiFiKeychainService = @"org.safeexambrowser.SEB.wifi
     
     // Check for Full Disk Access if accessibility app detection is enabled, BEFORE the
     // download/log folder access checks below: FDA is required to query the TCC database for
-    // apps with Accessibility permission, and granting it also grants access to those folders,
-    // so the separate folder-access prompts are then no longer needed.
+#if DEBUG
+    DDLogDebug(@"[DEBUG] Bypassing Full Disk Access check and folder privacy alerts for development mode.");
+    [self conditionallyInitSEBPermissionsCheckWithCallback:callback selector:selector];
+    return;
+#else
     if ([preferences secureBoolForKey:@"org_safeexambrowser_SEB_detectAccessibilityApps"] &&
         ![self accessibilityAppDetectionSupported]) {
         DDLogWarn(@"%s: detectAccessibilityApps is enabled but accessibility-app detection is unavailable on this macOS version (Full Disk Access to the system TCC database is not supported before macOS 12). Skipping the Full Disk Access requirement and detection.", __FUNCTION__);
@@ -3582,6 +3599,7 @@ static NSString * const kSEBWiFiKeychainService = @"org.safeexambrowser.SEB.wifi
     } else {
         [self conditionallyInitSEBPermissionsCheckWithCallback:callback selector:selector];
     }
+#endif
 }
 
 - (BOOL) directoryIsAccessible:(NSURL *)directoryURL directoryType:(NSString *)directoryType
@@ -4735,6 +4753,9 @@ static int GetBSDProcessList(kinfo_proc **procList, size_t *procCount)
 // Start the process watcher if it's not yet running
 - (void)startProcessWatcher
 {
+#if DEBUG
+    return;
+#endif
     DDLogDebug(@"%s", __FUNCTION__);
     
     if (!_processWatchTimer) {
@@ -4765,6 +4786,9 @@ static int GetBSDProcessList(kinfo_proc **procList, size_t *procCount)
 // Start the windows watcher if it's not yet running
 - (void)startWindowWatcher
 {
+#if DEBUG
+    return;
+#endif
     DDLogDebug(@"%s", __FUNCTION__);
     
     if (!_windowWatchTimer) {
@@ -4796,6 +4820,9 @@ static int GetBSDProcessList(kinfo_proc **procList, size_t *procCount)
 
 -(void)processWatcher
 {
+#if DEBUG
+    return;
+#endif
     if (quittingMyself) {
         DDLogDebug(@"App is terminating, skip process watcher");
         return;
@@ -4958,6 +4985,9 @@ static int GetBSDProcessList(kinfo_proc **procList, size_t *procCount)
 
 - (void)windowWatcher
 {
+#if DEBUG
+    return;
+#endif
     // Check if the font download dialog (if displayed) was successfully closed
     if (fontRegistryUIAgentRunning && !fontRegistryUIAgentDialogClosed) {
         // The dialog was probably displayed and the main thread (and this timer) blocked a while
@@ -6611,6 +6641,10 @@ conditionallyForWindow:(NSWindow *)window
 
 - (void)presentPreferencesCorruptedError
 {
+#if DEBUG
+    DDLogDebug(@"[DEBUG] Suppressed presentPreferencesCorruptedError in development mode.");
+    return;
+#endif
     DDLogError(@"Local SEB Settings Have Been Reset");
     
     [[NSRunningApplication currentApplication] activateWithOptions:(NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps)];
@@ -7554,6 +7588,9 @@ conditionallyForWindow:(NSWindow *)window
 
 - (BOOL) killApplication:(NSRunningApplication *)application
 {
+#if DEBUG
+    return YES;
+#else
     NSString *appLocalizedName = application.localizedName;
     appLocalizedName = appLocalizedName ? appLocalizedName : application.executableURL.path;
     appLocalizedName = appLocalizedName ? appLocalizedName : @"(unknown)";
@@ -7591,6 +7628,7 @@ conditionallyForWindow:(NSWindow *)window
         DDLogWarn(@"Didn't terminate app with localized name: %@, bundle or executable URL: %@, because a user did override it with the quit/unlock password.", appLocalizedName, appURL);
         return YES;
     }
+#endif
 }
 
 
@@ -7607,6 +7645,9 @@ conditionallyForWindow:(NSWindow *)window
 
 - (NSError * _Nullable) killProcess:(NSDictionary *)processDictionary
 {
+#if DEBUG
+    return nil;
+#else
     NSNumber *PID = [processDictionary objectForKey:@"PID"];
     pid_t processPID = PID.intValue;
     
@@ -7650,6 +7691,7 @@ conditionallyForWindow:(NSWindow *)window
         DDLogWarn(@"Didn't terminate app with localized name '%@' or process with bundle or executable URL '%@', because a user did override it with the quit/unlock password.", application.localizedName, appURL);
     }
     return error;
+#endif
 }
 
 
@@ -7744,6 +7786,9 @@ conditionallyForWindow:(NSWindow *)window
         }
         DDLogInfo(@"Using lockdownModePolicyAutomatic: AAC %@%@", _isAACEnabled ? @"enabled": @"disabled", _overrideAAC ? @" (overrideAAC)": @"");
     }
+#if DEBUG
+    _isAACEnabled = NO;
+#endif
     [ProcessManager sharedProcessManager].isAACActive = _isAACEnabled;
 }
 

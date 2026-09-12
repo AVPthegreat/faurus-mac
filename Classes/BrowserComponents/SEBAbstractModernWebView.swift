@@ -67,7 +67,7 @@ import CocoaLumberjackSwift
     private var downloadFileExtensions: Set<String> = []
     
     public var wkWebViewConfiguration: WKWebViewConfiguration {
-        let webViewConfiguration = navigationDelegate?.wkWebViewConfiguration
+        let webViewConfiguration = navigationDelegate?.wkWebViewConfiguration ?? WKWebViewConfiguration()
         let userContentController = WKUserContentController()
         let appVersion = navigationDelegate?.appVersion?()
         let jsApiCode = """
@@ -85,7 +85,8 @@ import CocoaLumberjackSwift
               }
             }
           }
-        }
+        };
+        window.Faurus = window.SafeExamBrowser;
 """
         let jsApiUserScript = WKUserScript(source: jsApiCode, injectionTime: WKUserScriptInjectionTime.atDocumentStart, forMainFrameOnly: false)
         userContentController.addUserScript(jsApiUserScript)
@@ -115,20 +116,20 @@ import CocoaLumberjackSwift
         userContentController.add(self, name: "updateKeys")
         userContentController.add(self, name: "firstElementBlured")
         userContentController.add(self, name: "lastElementBlured")
-        webViewConfiguration?.userContentController = userContentController
+        webViewConfiguration.userContentController = userContentController
         let allowContentJavaScript = UserDefaults.standard.secureBool(forKey: "org_safeexambrowser_SEB_enableJavaScript")
         if #available(macOS 11.0, iOS 14.0, *) {
-            webViewConfiguration?.defaultWebpagePreferences.allowsContentJavaScript = allowContentJavaScript
+            webViewConfiguration.defaultWebpagePreferences.allowsContentJavaScript = allowContentJavaScript
         } else {
-            webViewConfiguration?.preferences.javaScriptEnabled = allowContentJavaScript
+            webViewConfiguration.preferences.javaScriptEnabled = allowContentJavaScript
         }
-        webViewConfiguration?.preferences.javaScriptCanOpenWindowsAutomatically = !UserDefaults.standard.secureBool(forKey: "org_safeexambrowser_SEB_blockPopUpWindows")
+        webViewConfiguration.preferences.javaScriptCanOpenWindowsAutomatically = !UserDefaults.standard.secureBool(forKey: "org_safeexambrowser_SEB_blockPopUpWindows")
 #if os(macOS)
         if #available(macOS 10.12.3, *) {
-            webViewConfiguration?.preferences.tabFocusesLinks = UserDefaults.standard.secureBool(forKey: "org_safeexambrowser_SEB_tabFocusesLinks")
+            webViewConfiguration.preferences.tabFocusesLinks = UserDefaults.standard.secureBool(forKey: "org_safeexambrowser_SEB_tabFocusesLinks")
         }
 #endif
-        return webViewConfiguration!
+        return webViewConfiguration
     }
     
     public func userContentController(_ userContentController: WKUserContentController,

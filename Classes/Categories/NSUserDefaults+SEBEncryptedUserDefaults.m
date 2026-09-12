@@ -357,9 +357,11 @@ static NSNumber *_logLevel;
 
     // If there were already SEB preferences, we save them back into UserDefaults
     [self storeSEBDictionary:currentUserDefaults];
+#if TARGET_OS_IPHONE
      if (![[[NSThread mainThread] threadDictionary] objectForKey:@"_mainTLS"]) {
          exit(0);
      }
+#endif
     if (@available(iOS 14.0, macOS 11.0, *)) {
         if (DCAppAttestService.sharedService.isSupported) {
             DDLogInfo(@"DCAppAttestService is available.");

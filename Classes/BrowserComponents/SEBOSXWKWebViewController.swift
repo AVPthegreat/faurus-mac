@@ -45,31 +45,31 @@ public class SEBOSXWKWebViewController: NSViewController, WKUIDelegate, WKNaviga
     
     public var sebWebView : SEBOSXWKWebView? {
         if _sebWebView == nil {
-            if webViewConfiguration == nil {
-                webViewConfiguration = navigationDelegate?.wkWebViewConfiguration
-            }
+            let config = webViewConfiguration ?? navigationDelegate?.wkWebViewConfiguration ?? WKWebViewConfiguration()
+            webViewConfiguration = config
             let fullScreenPossible = navigationDelegate?.isAACEnabled ?? false
-            webViewConfiguration?.preferences._setFullScreenEnabled(fullScreenPossible)
+            config.preferences._setFullScreenEnabled(fullScreenPossible)
 //            webViewConfiguration?.preferences._setShouldAllowUserInstalledFonts(false) //ToDo: Test if this controls downloading fonts
 
-            DDLogDebug("WKWebViewConfiguration \(String(describing: webViewConfiguration))")
-            _sebWebView = SEBOSXWKWebView.init(frame: .zero, configuration: webViewConfiguration!)
-            _sebWebView?.sebOSXWebViewController = self
-            _sebWebView?.autoresizingMask = [.width, .height]
-            _sebWebView?.translatesAutoresizingMaskIntoConstraints = true
-            _sebWebView?.uiDelegate = self
-            _sebWebView?.navigationDelegate = self
-            _sebWebView?.addObserver(self, forKeyPath: #keyPath(WKWebView.title), options: .new, context: nil)
+            DDLogDebug("WKWebViewConfiguration \(String(describing: config))")
+            let webView = SEBOSXWKWebView.init(frame: .zero, configuration: config)
+            _sebWebView = webView
+            webView.sebOSXWebViewController = self
+            webView.autoresizingMask = [.width, .height]
+            webView.translatesAutoresizingMaskIntoConstraints = true
+            webView.uiDelegate = self
+            webView.navigationDelegate = self
+            webView.addObserver(self, forKeyPath: #keyPath(WKWebView.title), options: .new, context: nil)
             
-            _sebWebView?.customUserAgent = navigationDelegate?.customSEBUserAgent
+            webView.customUserAgent = navigationDelegate?.customSEBUserAgent
             let enableZoomPage = UserDefaults.standard.secureBool(forKey: "org_safeexambrowser_SEB_enableZoomPage")
-            _sebWebView?.allowsMagnification = enableZoomPage
+            webView.allowsMagnification = enableZoomPage
             urlFilter = SEBURLFilter.shared()
             
             // Create wrapper view which is necessary for WebInspector to not flicker
             wrapperView.autoresizingMask = [.width, .height]
             wrapperView.autoresizesSubviews = true
-            wrapperView.addSubview(_sebWebView!)
+            wrapperView.addSubview(webView)
 //            _sebWebView?.frame = wrapperView.bounds
         }
         return _sebWebView

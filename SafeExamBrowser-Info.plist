@@ -34,6 +34,7 @@
 			<key>CFBundleTypeExtensions</key>
 			<array>
 				<string>faurus</string>
+				<string>forest</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
 			<string>SEBDocumentIcon.icns</string>
@@ -141,7 +142,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>15A0D</string>
+	<string>15A0E</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.education</string>
 	<key>LSMinimumSystemVersion</key>
@@ -198,6 +199,7 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>faurus</string>
+					<string>forest</string>
 				</array>
 				<key>public.mime-type</key>
 				<string>application/x-faurus</string>

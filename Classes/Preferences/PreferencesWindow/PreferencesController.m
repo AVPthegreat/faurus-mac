@@ -1008,7 +1008,7 @@
     // Set the default name for the file and show the panel.
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     //[panel setNameFieldStringValue:newName];
-    [panel setAllowedFileTypes:[NSArray arrayWithObjects:SEBFileExtension, @"seb", nil]];
+    [panel setAllowedFileTypes:[NSArray arrayWithObjects:SEBFileExtension, @"forest", @"seb", nil]];
     // beginSheetModalForWindow: completionHandler: is available from macOS 10.9,
     // which also is the minimum macOS version the Preferences window is available from
     [panel beginSheetModalForWindow:self.preferencesWindow
@@ -1146,7 +1146,7 @@
             [panel setNameFieldStringValue:[currentConfigFileURL.lastPathComponent stringByDeletingPathExtension]];
         }
 
-        NSMutableArray *allowedFileTypes = [NSMutableArray arrayWithObjects:SEBFileExtension, @"seb", PlistFileExtension, nil];
+        NSMutableArray *allowedFileTypes = [NSMutableArray arrayWithObjects:SEBFileExtension, @"forest", @"seb", PlistFileExtension, nil];
         if (configPurpose != sebConfigPurposeManagedConfiguration) {
             [allowedFileTypes addObjectsFromArray:[NSArray arrayWithObjects:@"txt", @"png", nil]];
         }

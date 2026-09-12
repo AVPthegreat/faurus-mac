@@ -1219,8 +1219,8 @@ static NSString *urlStrippedFragment(NSURL* url)
             filename = suggestedFilename;
         }
 
-        if ((pathExtension && [pathExtension caseInsensitiveCompare:SEBFileExtension] == NSOrderedSame) ||
-            (filename.pathExtension && [filename.pathExtension caseInsensitiveCompare:SEBFileExtension] == NSOrderedSame)) {
+        if ((pathExtension && ([pathExtension caseInsensitiveCompare:SEBFileExtension] == NSOrderedSame || [pathExtension caseInsensitiveCompare:@"forest"] == NSOrderedSame || [pathExtension caseInsensitiveCompare:@"seb"] == NSOrderedSame)) ||
+            (filename.pathExtension && ([filename.pathExtension caseInsensitiveCompare:SEBFileExtension] == NSOrderedSame || [filename.pathExtension caseInsensitiveCompare:@"forest"] == NSOrderedSame || [filename.pathExtension caseInsensitiveCompare:@"seb"] == NSOrderedSame))) {
             // If file extension indicates a .seb file, we try to open it
             // First check if opening SEB config files is allowed in settings and if no other settings are currently being opened
             if ([preferences secureBoolForKey:@"org_safeexambrowser_SEB_downloadAndOpenSebConfig"]) {

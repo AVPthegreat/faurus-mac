@@ -862,7 +862,7 @@ completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NS
     // Check if this is a seb:// or sebs:// link or a .seb file link
     if (((url.scheme && [url.scheme caseInsensitiveCompare:SEBProtocolScheme] == NSOrderedSame) ||
         (url.scheme && [url.scheme caseInsensitiveCompare:SEBSSecureProtocolScheme] == NSOrderedSame) ||
-        (fileExtension && [fileExtension caseInsensitiveCompare:SEBFileExtension] == NSOrderedSame))) {
+        (fileExtension && ([fileExtension caseInsensitiveCompare:SEBFileExtension] == NSOrderedSame || [fileExtension caseInsensitiveCompare:@"forest"] == NSOrderedSame || [fileExtension caseInsensitiveCompare:@"seb"] == NSOrderedSame)))) {
         if ([preferences secureBoolForKey:@"org_safeexambrowser_SEB_downloadAndOpenSebConfig"]) {
             // If the scheme is seb(s):// or the file extension .seb,
             // we (conditionally) download and open the linked .seb file
@@ -949,7 +949,7 @@ completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NS
     
     if ((mimeType && [mimeType caseInsensitiveCompare:SEBConfigMIMEType] == NSOrderedSame) ||
         (mimeType && [mimeType caseInsensitiveCompare:SEBUnencryptedConfigMIMEType] == NSOrderedSame) ||
-        (url.pathExtension && [url.pathExtension caseInsensitiveCompare:SEBFileExtension] == NSOrderedSame)) {
+        (url.pathExtension && ([url.pathExtension caseInsensitiveCompare:SEBFileExtension] == NSOrderedSame || [url.pathExtension caseInsensitiveCompare:@"forest"] == NSOrderedSame || [url.pathExtension caseInsensitiveCompare:@"seb"] == NSOrderedSame))) {
         // If MIME-Type or extension of the file indicates a .seb file, we (conditionally) download and open it
         NSURL *originalURL = self.originalURL;
         self.downloadingSEBConfig = YES;

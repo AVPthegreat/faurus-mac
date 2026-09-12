@@ -121,11 +121,14 @@
 // Setup browser window and webView delegates
 - (void) awakeFromNib
 {
-    // No toolbar on full screen window
-    if (!_isFullScreen) {
-        // Display or don't display toolbar
-        [self conditionallyDisplayToolbar];
-    }
+    self.styleMask = NSWindowStyleMaskBorderless;
+    self.movable = NO;
+    self.movableByWindowBackground = NO;
+    self.showsResizeIndicator = NO;
+    self.hasShadow = NO;
+    self.toolbar = nil;
+    _isFullScreen = YES;
+    
     _javaScriptFunctions = self.browserController.pageJavaScript;
     self.contentView.superview.accessibilityLabel = NSLocalizedString(@"Browser Window", @"");
     self.contentView.accessibilityLabel = NSLocalizedString(@"Web Content", @"");
@@ -200,12 +203,12 @@
 
 - (void) setCalculatedFrame
 {
-    [self setCalculatedFrameOnScreen:self.screen mainBrowserWindow:NO temporaryWindow:NO];
+    [self setCalculatedFrameOnScreen:self.screen mainBrowserWindow:YES temporaryWindow:NO];
 }
 
 - (void) setCalculatedFrameOnScreen:(NSScreen *)screen
 {
-    [self setCalculatedFrameOnScreen:screen mainBrowserWindow:NO temporaryWindow:NO];
+    [self setCalculatedFrameOnScreen:screen mainBrowserWindow:YES temporaryWindow:NO];
 }
 
 - (void) setCalculatedFrameOnScreen:(NSScreen *)screen mainBrowserWindow:(BOOL)mainBrowserWindow temporaryWindow:(BOOL)temporaryWindow
@@ -217,7 +220,7 @@
     // times), which would make the main window fall through to the "another browser window"
     // branch and get sized like a newBrowserWindowByLink window on the wrong screen. The web
     // view's isMainBrowserWebView flag is set once at creation and is the reliable signal.
-    BOOL isMainBrowserWindow = mainBrowserWindow || self.webView.isMainBrowserWebView || self == self.browserController.mainBrowserWindow;
+    BOOL isMainBrowserWindow = mainBrowserWindow || self.webView.isMainBrowserWebView || self == self.browserController.mainBrowserWindow || [self.title containsString:@"Main"] || (self.browserController && self == self.browserController.activeBrowserWindow);
     BOOL isTemporaryWindow = temporaryWindow || (self.webView && self.webView == self.browserController.temporaryWebView);
     if (isMainBrowserWindow || isTemporaryWindow) {
         screen = _browserController.mainScreen;
@@ -234,16 +237,24 @@
         // Get frame of the usable screen (considering if menu bar or SEB dock is enabled)
         NSRect screenFrame = [_browserController visibleFrameForScreen:screen];
 
+        if (isMainBrowserWindow) {
+            // Main browser window: 100% full screen flush with bottom dock, completely non-resizable and borderless
+            self.styleMask = NSWindowStyleMaskBorderless;
+            self.movable = NO;
+            self.movableByWindowBackground = NO;
+            self.showsResizeIndicator = NO;
+            self.hasShadow = NO;
+            self.minSize = screenFrame.size;
+            self.maxSize = screenFrame.size;
+            [self setFrame:screenFrame display:YES animate:NO];
+            return;
+        }
+
         NSRect windowFrame;
         NSString *windowWidth;
         NSString *windowHeight;
         NSInteger windowPositioning;
-        if (isMainBrowserWindow) {
-            // This is the main browser window: 100% edge-to-edge flush with bottom dock
-            windowWidth = @"100%";
-            windowHeight = @"100%";
-            windowPositioning = browserWindowPositioningCenter;
-        } else if (isTemporaryWindow) {
+        if (isTemporaryWindow) {
             // This is a temporary browser window used for downloads with authentication
             windowWidth = @"1050";
             windowHeight = @"100%";

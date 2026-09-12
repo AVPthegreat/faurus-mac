@@ -241,11 +241,15 @@
         [browserWindowDocument makeWindowControllers];
         
         SEBBrowserWindow *newWindow = (SEBBrowserWindow *)browserWindowDocument.mainWindowController.window;
+        newWindow.styleMask = NSWindowStyleMaskBorderless;
+        newWindow.movable = NO;
+        newWindow.movableByWindowBackground = NO;
+        newWindow.showsResizeIndicator = NO;
+        newWindow.hasShadow = NO;
         
         // Prevent that the browser window displays the button to make it fullscreen in OS X 10.11
         // and that it would allow to be used in split screen mode
         newWindow.collectionBehavior = NSWindowCollectionBehaviorStationary + NSWindowCollectionBehaviorFullScreenAuxiliary +NSWindowCollectionBehaviorFullScreenDisallowsTiling;
-        //    NSTextView *textView = (NSTextView *)[newWindow firstResponder];
         return newWindow;
     }
     return nil;
@@ -308,8 +312,8 @@
     
     NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
     
-    // Preconfigure Window for full screen
-    BOOL mainBrowserWindowShouldBeFullScreen = ([preferences secureIntegerForKey:@"org_safeexambrowser_SEB_browserViewMode"] == browserViewModeFullscreen);
+    // Preconfigure Window for full screen (always full screen and non-resizable in Faurus Exam Browser)
+    BOOL mainBrowserWindowShouldBeFullScreen = YES;
     
     DDLogInfo(@"Open MainBrowserWindow with browserViewMode: %hhd", mainBrowserWindowShouldBeFullScreen);
     
@@ -344,7 +348,12 @@
     if (mainBrowserWindowShouldBeFullScreen) {
         [self.mainBrowserWindow setToolbar:nil];
         [self.mainBrowserWindow setStyleMask:NSWindowStyleMaskBorderless];
+        [self.mainBrowserWindow setMovable:NO];
+        [self.mainBrowserWindow setMovableByWindowBackground:NO];
+        [self.mainBrowserWindow setShowsResizeIndicator:NO];
+        [self.mainBrowserWindow setHasShadow:NO];
         [self.mainBrowserWindow setReleasedWhenClosed:YES];
+        [self.mainBrowserWindow setCalculatedFrameOnScreen:self.mainBrowserWindow.screen mainBrowserWindow:YES temporaryWindow:NO];
     }
     [[NSRunningApplication currentApplication] activateWithOptions:(NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps)];
     

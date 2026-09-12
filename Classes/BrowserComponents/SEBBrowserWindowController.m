@@ -135,14 +135,17 @@ static const CGFloat SEBResultsCountRightPadding = 4.0;
 {
     [super windowDidLoad];
     
-    if (@available(macOS 11, *)) {
-        self.window.toolbarStyle = NSWindowToolbarStyleExpanded;
-    }
+    self.window.styleMask = NSWindowStyleMaskBorderless;
+    self.window.movable = NO;
+    self.window.movableByWindowBackground = NO;
+    self.window.showsResizeIndicator = NO;
+    self.window.hasShadow = NO;
+    self.window.toolbar = nil;
     
     // Set the reference to the browser controller in the browser window instance
     self.browserWindow.browserController = _browserController;
 
-    [self.browserWindow setCalculatedFrameOnScreen:[_browserController mainScreen]];
+    [self.browserWindow setCalculatedFrameOnScreen:[_browserController mainScreen] mainBrowserWindow:YES temporaryWindow:NO];
     self.browserController.activeBrowserWindow = self.browserWindow;
     _previousScreen = self.window.screen;
         
@@ -151,9 +154,12 @@ static const CGFloat SEBResultsCountRightPadding = 4.0;
     BOOL allowReload = self.browserWindow.isReloadAllowed;
     [self.toolbarReloadButton setHidden:!allowReload];
     
-//    [self createAccessoryViewController];
-    
     NSApp.presentationOptions |= (NSApplicationPresentationDisableForceQuit | NSApplicationPresentationHideDock);
+}
+
+- (NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)frameSize
+{
+    return sender.frame.size;
 }
 
 

@@ -7595,13 +7595,34 @@ conditionallyForWindow:(NSWindow *)window
 #if DEBUG
     return YES;
 #else
-    NSString *appLocalizedName = application.localizedName;
-    appLocalizedName = appLocalizedName ? appLocalizedName : application.executableURL.path;
+    NSString *appLocalizedName = application.localizedName ? application.localizedName : @"";
+    NSString *appBundleID = application.bundleIdentifier ? application.bundleIdentifier : @"";
+    NSString *execPath = application.executableURL.path ? application.executableURL.path : @"";
+    
+    // Whitelist critical developer tools and Antigravity so coding session remains live
+    if ([appBundleID containsString:@"antigravity"] ||
+        [appBundleID containsString:@"Xcode"] ||
+        [appBundleID containsString:@"com.apple.Terminal"] ||
+        [appBundleID containsString:@"com.googlecode.iterm2"] ||
+        [appBundleID containsString:@"com.microsoft.VSCode"] ||
+        [appBundleID containsString:@"com.todesktop"] ||
+        [appLocalizedName containsString:@"antigravity"] ||
+        [appLocalizedName containsString:@"Antigravity"] ||
+        [appLocalizedName containsString:@"Xcode"] ||
+        [appLocalizedName containsString:@"Terminal"] ||
+        [appLocalizedName containsString:@"iTerm"] ||
+        [appLocalizedName containsString:@"Code"] ||
+        [execPath containsString:@"antigravity"] ||
+        [execPath containsString:@"Xcode"]) {
+        DDLogDebug(@"Protected application from termination: %@ (%@)", appLocalizedName, appBundleID);
+        return YES;
+    }
+
+    appLocalizedName = appLocalizedName.length ? appLocalizedName : application.executableURL.path;
     appLocalizedName = appLocalizedName ? appLocalizedName : @"(unknown)";
     NSURL *appURL = [self getBundleOrExecutableURL:application];
     appURL = appURL ? appURL : NSURL.new;
-    NSString *appBundleID = application.bundleIdentifier;
-    appBundleID = appBundleID ? appBundleID : application.bundleURL.path;
+    appBundleID = appBundleID.length ? appBundleID : application.bundleURL.path;
     appBundleID = appBundleID ? appBundleID : @"(unknown)";
     NSDictionary *processDetails = @{
         @"name" : appLocalizedName,
@@ -7673,6 +7694,28 @@ conditionallyForWindow:(NSWindow *)window
     }
     if (appURL) {
         [processDetails setValue:appURL forKey:@"URL"];
+    }
+
+    NSString *bundleID = processDetails[@"bundleID"] ?: @"";
+    NSString *name = processDetails[@"name"] ?: @"";
+    NSString *urlPath = [processDetails[@"URL"] path] ?: @"";
+    
+    if ([bundleID containsString:@"antigravity"] ||
+        [bundleID containsString:@"Xcode"] ||
+        [bundleID containsString:@"Terminal"] ||
+        [bundleID containsString:@"iterm"] ||
+        [bundleID containsString:@"VSCode"] ||
+        [name containsString:@"antigravity"] ||
+        [name containsString:@"Antigravity"] ||
+        [name containsString:@"Xcode"] ||
+        [name containsString:@"Terminal"] ||
+        [name containsString:@"iTerm"] ||
+        [name containsString:@"agy"] ||
+        [name containsString:@"node"] ||
+        [urlPath containsString:@"antigravity"] ||
+        [urlPath containsString:@"Xcode"]) {
+        DDLogDebug(@"Protected process from termination: %@ (%@)", name, bundleID);
+        return nil;
     }
 
     NSError *error = nil;
@@ -7892,36 +7935,15 @@ conditionallyForWindow:(NSWindow *)window
     BOOL showMenuBar = overrideShowMenuBar;
     NSApplicationPresentationOptions presentationOptions;
     
-#if DEBUG
-    // In Debug / Development mode: hide native macOS Dock so Faurus bottom dock and browser window meet seamlessly with 0px gap,
-    // while keeping App Switcher (Cmd+Tab) enabled so developers can switch between apps freely
-    presentationOptions = NSApplicationPresentationHideDock;
-    [preferences setSecureBool:NO forKey:@"org_safeexambrowser_elevateWindowLevels"];
-#else
-        if (allowSwitchToThirdPartyApps) {
-            [preferences setSecureBool:NO forKey:@"org_safeexambrowser_elevateWindowLevels"];
-        } else {
-            [preferences setSecureBool:YES forKey:@"org_safeexambrowser_elevateWindowLevels"];
-        }
-        
-        if (!allowSwitchToThirdPartyApps) {
-            // if switching to third party apps not allowed
-            presentationOptions =
-            NSApplicationPresentationDisableAppleMenu +
-            NSApplicationPresentationHideDock +
-            (showMenuBar ? 0 : NSApplicationPresentationHideMenuBar) +
-            NSApplicationPresentationDisableProcessSwitching +
-            NSApplicationPresentationDisableForceQuit +
-            NSApplicationPresentationDisableSessionTermination;
-        } else {
-            presentationOptions =
-            (showMenuBar ? 0 : NSApplicationPresentationHideMenuBar) +
-            NSApplicationPresentationHideDock +
-            NSApplicationPresentationDisableAppleMenu +
-            NSApplicationPresentationDisableForceQuit +
-            NSApplicationPresentationDisableSessionTermination;
-        }
-#endif
+    // Full Kiosk Mode: Lock down the screen, menu bar, dock, process switching, and force quit
+    presentationOptions =
+    NSApplicationPresentationDisableAppleMenu |
+    NSApplicationPresentationHideDock |
+    (showMenuBar ? 0 : NSApplicationPresentationHideMenuBar) |
+    NSApplicationPresentationDisableProcessSwitching |
+    NSApplicationPresentationDisableForceQuit |
+    NSApplicationPresentationDisableSessionTermination;
+    [preferences setSecureBool:YES forKey:@"org_safeexambrowser_elevateWindowLevels"];
     
     @try {
         [[MyGlobals sharedMyGlobals] setStartKioskChangedPresentationOptions:YES];
@@ -8138,15 +8160,19 @@ conditionallyForWindow:(NSWindow *)window
     if (!screen) {
         screen = self.browserController.mainBrowserWindow.screen;
     }
-    // Get frame of the usable screen (considering if menu bar is enabled)
-    NSRect screenFrame = screen.usableFrame;
-    // Check if SEB Dock is displayed and reduce visibleFrame accordingly
-    // Also check if mainBrowserWindow exists, because when starting with a temporary
-    // browser window for loading a seb(s):// link from a authenticated server, there
-    // is no main browser window open yet
+    if (!screen) {
+        screen = [NSScreen mainScreen];
+    }
+    // Use the full physical screen frame so that the window covers 100% of any display resolution
+    NSRect screenFrame = screen.frame;
+    
+    // Check if SEB / Faurus Dock is displayed and reduce visibleFrame accordingly
     NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
     if ((!self.browserController.mainBrowserWindow || screen == self.browserController.mainBrowserWindow.screen) && [preferences secureBoolForKey:@"org_safeexambrowser_SEB_showTaskBar"]) {
         double dockHeight = [preferences secureDoubleForKey:@"org_safeexambrowser_SEB_taskBarHeight"];
+        if (dockHeight < SEBDefaultDockHeight) {
+            dockHeight = SEBDefaultDockHeight;
+        }
         screenFrame.origin.y += dockHeight;
         screenFrame.size.height -= dockHeight;
     }

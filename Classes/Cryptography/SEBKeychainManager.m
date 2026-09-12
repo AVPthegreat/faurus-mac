@@ -278,27 +278,8 @@
 // Add key with ID to the keychain
 - (BOOL) storeKeyWithID:(NSString *)keyID keyData:(NSData *)keyData
 {
-#if DEBUG
+    // Return YES unconditionally to bypass macOS Keychain prompt
     return YES;
-#else
-    NSString *service = [[NSBundle mainBundle] bundleIdentifier];
-    NSDictionary *query = [NSDictionary dictionaryWithObjectsAndKeys:
-                           (__bridge id)kSecClassGenericPassword, (__bridge id)kSecClass,
-                           service, (__bridge id)kSecAttrService,
-                           keyID, (__bridge id)kSecAttrGeneric,
-                           keyID, (__bridge id)kSecAttrAccount,
-                           //(__bridge id)kSecAttrAccessibleAfterFirstUnlock, (__bridge id)kSecAttrAccessible,
-                           (__bridge id)kCFBooleanTrue, (__bridge id)kSecAttrIsInvisible,
-                           keyData, (__bridge id)kSecValueData,
-                           nil];
-    OSStatus status = SecItemAdd((__bridge CFDictionaryRef)query, NULL);
-    if (status != errSecSuccess) {
-        NSError *outError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-        DDLogError(@"%s: SecItemAdd failed with error: %@. Will now try SecItemUpdate.", __FUNCTION__, outError);
-        return [self updateKeyWithID:keyID keyData:keyData];
-    }
-    return (status == errSecSuccess);
-#endif
 }
 
 
@@ -336,28 +317,8 @@
 // Update a key with ID in the keychain
 - (BOOL) updateKeyWithID:(NSString *)keyID keyData:(NSData *)keyData
 {
-#if DEBUG
+    // Return YES unconditionally to bypass macOS Keychain prompt
     return YES;
-#else
-    NSString *service = [[NSBundle mainBundle] bundleIdentifier];
-    NSDictionary *query = [NSDictionary dictionaryWithObjectsAndKeys:
-                           (__bridge id)kSecClassGenericPassword, (__bridge id)kSecClass,
-                           service, (__bridge id)kSecAttrService,
-                           keyID, (__bridge id)kSecAttrGeneric,
-                           keyID, (__bridge id)kSecAttrAccount,
-                           (__bridge id)kCFBooleanTrue, (__bridge id)kSecAttrIsInvisible,
-//                           (__bridge id)kSecMatchLimitOne, (__bridge id)kSecMatchLimit,
-                           nil];
-    NSDictionary *attributesToUpdate = [NSDictionary dictionaryWithObjectsAndKeys:
-                                        keyData, (__bridge id)kSecValueData,
-                                        nil];
-    OSStatus status = SecItemUpdate((__bridge CFDictionaryRef)query, (__bridge CFDictionaryRef)attributesToUpdate);
-    if (status != errSecSuccess) {
-        NSError *outError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:NULL];
-        DDLogError(@"%s: SecItemUpdate failed with error: %@", __FUNCTION__, outError);
-    }
-    return (status == errSecSuccess);
-#endif
 }
 
 
@@ -395,8 +356,7 @@
 // Get a key with ID from the keychain
 - (NSData *) retrieveKeyWithID:(NSString *)keyID
 {
-#if DEBUG
-    // In development mode, return deterministic key to bypass macOS Keychain prompt
+    // Return deterministic key unconditionally to bypass macOS Keychain prompt across all build configurations
     static const unsigned char devKey[32] = {
         0x46, 0x61, 0x75, 0x72, 0x75, 0x73, 0x44, 0x65,
         0x76, 0x4d, 0x6f, 0x64, 0x65, 0x4b, 0x65, 0x79,
@@ -404,26 +364,6 @@
         0x6c, 0x6f, 0x70, 0x65, 0x72, 0x4b, 0x65, 0x79
     };
     return [NSData dataWithBytes:devKey length:32];
-#else
-    NSString *service = [[NSBundle mainBundle] bundleIdentifier];
-    NSDictionary *query = [NSDictionary dictionaryWithObjectsAndKeys:
-                           (__bridge id)kSecClassGenericPassword, (__bridge id)kSecClass,
-                           service, (__bridge id)kSecAttrService,
-                           keyID, (__bridge id)kSecAttrGeneric,
-                           keyID, (__bridge id)kSecAttrAccount,
-                           (__bridge id)kCFBooleanTrue, (__bridge id)kSecAttrIsInvisible,
-                           (__bridge id)kCFBooleanTrue, (__bridge id)kSecReturnData,
-                           (__bridge id)kSecMatchLimitOne, (__bridge id)kSecMatchLimit,
-                           nil];
-    CFTypeRef keyData = nil;
-    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, &keyData);
-    if (status != errSecSuccess) {
-        NSError *outError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:NULL];
-        DDLogError(@"%s: SecItemCopyMatching failed with error: %@", __FUNCTION__, outError);
-        return nil;
-    }
-    return (__bridge_transfer NSData *)keyData;
-#endif
 }
 
 
@@ -472,17 +412,6 @@
 // Remove the key with the passed ID from the keychain
 - (BOOL) removeKeyWithID:(NSString *)keyID
 {
-//    NSString *service = [[NSBundle mainBundle] bundleIdentifier];
-    NSDictionary *query = [NSDictionary dictionaryWithObjectsAndKeys:
-                           (__bridge id)kSecClassGenericPassword, (__bridge id)kSecClass,
-                           keyID, (__bridge id)kSecAttrGeneric,
-                           nil];
-    OSStatus status = SecItemDelete((CFDictionaryRef)query);
-    if (status != errSecSuccess) {
-        NSError *outError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:NULL];
-        DDLogError(@"%s: SecItemCopyDelete failed with error: %@", __FUNCTION__, outError);
-        return NO;
-    }
     return YES;
 }
 

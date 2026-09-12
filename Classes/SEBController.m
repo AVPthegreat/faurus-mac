@@ -6201,6 +6201,9 @@ bool insideMatrix(void){
 
 // Open background windows on all available screens to prevent Finder becoming active when clicking on the desktop background
 - (void) coverScreens {
+#if DEBUG
+    return;
+#endif
     DDLogDebug(@"%s Open background windows on all available screens", __FUNCTION__);
     NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
     BOOL allowSwitchToThirdPartyApps = ![preferences secureBoolForKey:@"org_safeexambrowser_elevateWindowLevels"];
@@ -6434,6 +6437,11 @@ bool insideMatrix(void){
 
 - (void) adjustScreenLocking: (id _Nullable)sender
 {
+    static BOOL isAdjustingScreenLocking = NO;
+    if (isAdjustingScreenLocking) {
+        return;
+    }
+    isAdjustingScreenLocking = YES;
 #ifdef DEBUG
     // This should only be done when the preferences window isn't open
     if (sender) {
@@ -6489,6 +6497,7 @@ bool insideMatrix(void){
         // We adjust the size of the main browser window
         [self.browserController adjustMainBrowserWindow];
     }
+    isAdjustingScreenLocking = NO;
 }
 
 
@@ -8024,6 +8033,9 @@ conditionallyForWindow:(NSWindow *)window
 
 - (void)reinforceKioskMode
 {
+#if DEBUG
+    return;
+#endif
     if (_relaxedKioskForPermissionDialog) {
         // A permission dialog (Full Disk Access / Location Services) has temporarily downgraded the
         // kiosk mode so System Settings can be reached; don't re-tighten it (and re-hide System

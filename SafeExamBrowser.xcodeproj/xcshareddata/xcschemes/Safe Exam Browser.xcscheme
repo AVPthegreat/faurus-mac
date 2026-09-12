@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "69F7B5FA14F411FB00FD0761"
-               BuildableName = "Safe Exam Browser.app"
+               BuildableName = "Faurus Exam Browser.app"
                BlueprintName = "Safe Exam Browser"
                ReferencedContainer = "container:SafeExamBrowser.xcodeproj">
             </BuildableReference>
@@ -31,7 +31,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "69F7B5FA14F411FB00FD0761"
-            BuildableName = "Safe Exam Browser.app"
+            BuildableName = "Faurus Exam Browser.app"
             BlueprintName = "Safe Exam Browser"
             ReferencedContainer = "container:SafeExamBrowser.xcodeproj">
          </BuildableReference>
@@ -67,7 +67,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "69F7B5FA14F411FB00FD0761"
-            BuildableName = "Safe Exam Browser.app"
+            BuildableName = "Faurus Exam Browser.app"
             BlueprintName = "Safe Exam Browser"
             ReferencedContainer = "container:SafeExamBrowser.xcodeproj">
          </BuildableReference>
@@ -84,7 +84,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "69F7B5FA14F411FB00FD0761"
-            BuildableName = "Safe Exam Browser.app"
+            BuildableName = "Faurus Exam Browser.app"
             BlueprintName = "Safe Exam Browser"
             ReferencedContainer = "container:SafeExamBrowser.xcodeproj">
          </BuildableReference>

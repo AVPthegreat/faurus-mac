@@ -1866,7 +1866,6 @@
 				6943C6142A991C4000EC18FF /* CocoaLumberjack in Frameworks */,
 				6943C6162A991C4000EC18FF /* CocoaLumberjackSwift in Frameworks */,
 				6905C5AB1961B4E5000008EC /* SystemConfiguration.framework in Frameworks */,
-				69E1F1D62A14118F00B149A4 /* libSEBSupport.a in Frameworks */,
 				6940A7671853B62000D9D00D /* libz.dylib in Frameworks */,
 				69F7B61D14F411FB00FD0761 /* WebKit.framework in Frameworks */,
 				69F7B61E14F411FB00FD0761 /* Cocoa.framework in Frameworks */,
@@ -5864,14 +5863,16 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
-				CODE_SIGN_ENTITLEMENTS = "Safe Exam Browser/Safe Exam Browser.entitlements";
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGNING_ALLOWED = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 15753;
-				DEVELOPMENT_TEAM = 6F38DNSC7X;
-				ENABLE_HARDENED_RUNTIME = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

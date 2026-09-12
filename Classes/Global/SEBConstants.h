@@ -33,43 +33,43 @@
 
 #import <Foundation/Foundation.h>
 
-// RGB values in the Display P3 color space
-#define SEBTintColorRedValue 0.899
-#define SEBTintColorGreenValue 0.533
-#define SEBTintColorBlueValue 0.274
+// RGB values in the Display P3 color space (Faurus Flame: #ff7a3d)
+#define SEBTintColorRedValue 1.000
+#define SEBTintColorGreenValue 0.478
+#define SEBTintColorBlueValue 0.239
 
 static NSString __unused *sebUserDefaultsPrefix = @"org_safeexambrowser_SEB_";
 #define SEBUserDefaultsPrefixLength 24
 static NSString __unused *sebPrivateUserDefaultsPrefix = @"org_safeexambrowser_";
 
-static NSString __unused *sebErrorDomain = @"org.safeexambrowser.SEB";
+static NSString __unused *sebErrorDomain = @"app.faurus.browser";
 
-static NSString __unused *SEBStartPage = @"https://safeexambrowser.org/start";
-static NSString __unused *SEBHelpPage = @"https://safeexambrowser.org/macosx";
-// Localized download page: the "%@" is replaced by a language code (e.g. "en", "de", "fr").
-static NSString __unused *SEBDownloadPageFormat = @"https://safeexambrowser.org/download_%@#MacOSX.html";
-// App Store page for the iOS SEB app, opened from the "Update SEB" alert action.
-static NSString __unused *SEBiOSAppStorePage = @"https://itunes.apple.com/app/safeexambrowser/id1155002964?mt=8";
-static NSString __unused *SEBSupportEmail = @"info@safeexambrowser.org";
-static NSString __unused *SEBWebsiteShort = @"safeexambrowser.org";
+static NSString __unused *SEBStartPage = @"https://faurus.app/";
+static NSString __unused *SEBHelpPage = @"https://faurus.app/";
+// Localized download page:
+static NSString __unused *SEBDownloadPageFormat = @"https://faurus.app/";
+// App Store page
+static NSString __unused *SEBiOSAppStorePage = @"https://faurus.app/";
+static NSString __unused *SEBSupportEmail = @"ceo@faurus.app";
+static NSString __unused *SEBWebsiteShort = @"faurus.app";
 
-static NSString __unused *SEBOrganization = @"ETH Zurich";
-static NSString __unused *SEBCountry = @"CH";
+static NSString __unused *SEBOrganization = @"Faurus";
+static NSString __unused *SEBCountry = @"US";
 
-static NSString __unused *SEBFullAppNameClassic = @"Safe Exam Browser";
-static NSString __unused *SEBFullAppName = @"SafeExamBrowser";
-static NSString __unused *SEBShortAppName = @"SEB";
-static NSString __unused *SEBExtraShortAppName = @"SEB";
-static NSString __unused *SEBFileExtension = @"seb";
-static NSString __unused *SEBConfigMIMEType = @"application/seb";
-static NSString __unused *SEBUnencryptedConfigMIMEType = @"text/xml";
-static NSString __unused *SEBProtocolScheme = @"seb";
-static NSString __unused *SEBSSecureProtocolScheme = @"sebs";
-static NSString __unused *SEBClientSettingsACCSubdomainShort = @"seb";
-static NSString __unused *SEBClientSettingsACCSubdomainLong = @"safeexambrowser";
-static NSString __unused *SEBClientSettingsACCPath = @"safeexambrowser";
-static NSString __unused *SEBClientSettingsFilename = @"SEBClientSettings.seb";
+static NSString __unused *SEBFullAppNameClassic = @"Faurus Exam Browser";
+static NSString __unused *SEBFullAppName = @"Faurus";
+static NSString __unused *SEBShortAppName = @"Faurus";
+static NSString __unused *SEBExtraShortAppName = @"Faurus";
+static NSString __unused *SEBFileExtension = @"faurus";
+static NSString __unused *SEBConfigMIMEType = @"application/x-faurus";
+static NSString __unused *SEBUnencryptedConfigMIMEType = @"application/xml";
+static NSString __unused *SEBProtocolScheme = @"faurus";
+static NSString __unused *SEBSSecureProtocolScheme = @"fauruss";
+static NSString __unused *SEBClientSettingsACCSubdomainShort = @"faurus";
+static NSString __unused *SEBClientSettingsACCSubdomainLong = @"faurus";
+static NSString __unused *SEBClientSettingsACCPath = @"faurus";
+static NSString __unused *SEBClientSettingsFilename = @"FaurusClientSettings.faurus";
 static NSString __unused *SEBClientSettingsDirectory = @"Preferences";
-static NSString __unused *SEBSettingsFilename = @"SEBSettings.seb";
-static NSString __unused *SEBExamSettingsFilename = @"SEBExamSettings.seb";
-static NSString __unused *SEBUserAgentDefaultSuffix = @"SEB";
+static NSString __unused *SEBSettingsFilename = @"FaurusSettings.faurus";
+static NSString __unused *SEBExamSettingsFilename = @"FaurusExamSettings.faurus";
+static NSString __unused *SEBUserAgentDefaultSuffix = @"Faurus";

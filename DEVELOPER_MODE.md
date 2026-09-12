@@ -1,77 +1,63 @@
-# Safe Exam Browser / Faurus — Developer Mode & Lockdown Overrides
+# Faurus Exam Browser — Technical Documentation & Architecture
 
-This document details all security, kiosk, and anti-cheat mechanisms that have been conditionally modified with `#if DEBUG` preprocessor macros.
+This document details the complete rebranding, file associations, dark flame visual theme, and development/production build toggles for **Faurus Exam Browser** ([faurus.app](https://faurus.app)).
 
 ---
 
-## Quick Reference: Debug (Dev) vs. Release (Production Exam)
+## 1. Brand Architecture & Custom Formats
 
-| Lockdown Feature | Debug Build (`DEBUG=1`) | Release Build (Production Exam) | Source File & Function Reference |
+### Identity & Naming
+- **Application Name**: Faurus Exam Browser
+- **Executable / Bundle Name**: Faurus
+- **Bundle Identifier**: `app.faurus.browser`
+- **User-Agent String**: `FaurusBrowser/<version> Faurus/<version> ...`
+- **Vendor / Organization**: Faurus (© 2026 Faurus. All Rights Reserved.)
+- **Website**: `https://faurus.app/`
+
+### File Format & Custom Protocols
+- **Configuration Extension**: `.faurus` (MIME type: `application/x-faurus`, UTI: `app.faurus.config`)
+  - Exam configurations exported from the settings or your web platform save and open as `<filename>.faurus`.
+  - Backwards-compatible reading of legacy `.seb` files is retained internally.
+- **URL Schemes**:
+  - `faurus://` and `fauruss://`
+  - Links clicked by students on `faurus.app` or an LMS automatically route into Faurus Exam Browser.
+
+---
+
+## 2. Visual Theme & Assets
+
+Extracted from the official **faurus.app** visual identity:
+- **Background**: Deep Obsidian Charcoal (`#0a0705`, `#100b08`)
+- **Accent Gradients**: Flame Amber (`#ffb765` top-left to `#e8501d` bottom-right)
+- **Top Accent Borders**: Subtle flame stroke (`rgba(255, 122, 61, 0.35)`)
+- **Dock / Taskbar**: Custom-drawn `#0a0705` obsidian background with flame border in `Classes/SEBDock/SEBDockView.m`.
+- **Insignia**: Apple-standard Retina squircle icon with the bold geometric Faurus "F" glyph.
+- **Assets Generated**:
+  - `AppIcon.appiconset`: 10 Retina sizes (16x16 up to 1024x1024).
+  - `Resources/Icons/FaurusAppIcon.icns`: Application icon package.
+  - `Resources/Icons/FaurusDocumentIcon.icns` & `SEBDocumentIcon.icns`: Document icon displayed by macOS Finder for `.faurus` files.
+  - `Resources/Images/AboutFaurus.png` & `AboutFaurus@2x.png`: High-resolution dark glass About panel graphics.
+
+---
+
+## 3. Development Mode vs. Production Exam Mode
+
+The codebase is equipped with compile-time `#if DEBUG` preprocessor directives:
+
+| Lockdown Feature | Debug Build (`DEBUG=1` in Xcode) | Release Build (Production Exam) | Code Locations |
 | :--- | :--- | :--- | :--- |
-| **App Force-Quits** | **Disabled** (IDE, Terminal, Browser, Docker remain running) | **Enabled** (Terminates all unauthorized processes) | [`NSRunningApplication+SEB.m`](Classes/Categories/NSRunningApplication+SEB.m): `killProcessWithPID:error:`, `killApplicationWithBundleIdentifier:`, `kill`<br>[`ProcessManager.m`](Classes/ProcessMonitoring/ProcessManager.m): `updateMonitoredProcesses`<br>[`SEBController.m`](Classes/SEBController.m): `terminateApplications:...` |
-| **Screenshots & Capture** | **Allowed** (`Cmd+Shift+3/4/5` and screen capture work without blackout) | **Blocked** (Windows blacked out via `NSWindowSharingNone`, shortcuts blocked) | [`SEBOSXBrowserController.m`](Classes/BrowserComponents/SEBOSXBrowserController.m): `setSharingType:`<br>[`SEBSystemManager.m`](Classes/SystemManager/SEBSystemManager.m): `preventScreenCapture` |
-| **Dock & Menu Bar** | **Visible** (`NSApplicationPresentationDefault`) | **Hidden** (`NSApplicationPresentationHideDock` + `HideMenuBar`) | [`SEBController.m`](Classes/SEBController.m): `startKioskModeThirdPartyAppsAllowed:overrideShowMenuBar:` |
-| **App Switching (`Cmd+Tab`)** | **Enabled** (Free switching between apps) | **Disabled** (`NSApplicationPresentationDisableProcessSwitching`) | [`SEBController.m`](Classes/SEBController.m): `startKioskModeThirdPartyAppsAllowed:overrideShowMenuBar:` |
-| **Blackout Cover Windows** | **Disabled** (No overlay blackout windows across monitors) | **Enabled** (Blanks out external/secondary screens) | [`SEBController.m`](Classes/SEBController.m): `coverScreens` |
-| **Window Frame & Sizing** | **Centered 80% Floating Window** | **Full Screen Kiosk Takeover** | [`SEBBrowserWindow.m`](Classes/BrowserComponents/SEBBrowserWindow.m): `setCalculatedFrameOnScreen:...` |
-| **Window Level (Z-Order)** | **Normal Level** (`NSNormalWindowLevel` = 0) | **Elevated** (`NSMainMenuWindowLevel + 3` or higher) | [`SEBOSXBrowserController.m`](Classes/BrowserComponents/SEBOSXBrowserController.m): `setLevelForBrowserWindow:elevateLevels:` |
+| **App Force-Quits** | **Disabled**: IDE, Terminal, Browser, and Docker remain open. | **Enabled**: Detects and terminates prohibited applications. | `NSRunningApplication+SEB.m`, `ProcessManager.m`, `SEBController.m` |
+| **Screenshots & Capture** | **Allowed**: `Cmd+Shift+4` and recording capture the window cleanly (`NSWindowSharingReadOnly`). | **Blocked**: Windows blacked out via `NSWindowSharingNone`. | `SEBOSXBrowserController.m`, `SEBSystemManager.m` |
+| **Dock & Menu Bar** | **Visible**: `NSApplicationPresentationDefault`. | **Hidden**: Kiosk mode hides Dock and Menu Bar. | `SEBController.m` |
+| **App Switching** | **Enabled**: Normal `Cmd+Tab` app switching. | **Disabled**: Process switching blocked. | `SEBController.m` |
+| **Cover Windows** | **Disabled**: No blackout overlay screens. | **Enabled**: Blanks out secondary monitors. | `SEBController.m` |
+| **Window Frame** | **Standard 80% Floating Window** (layer 0). | **Full Screen Pinned Kiosk Window**. | `SEBBrowserWindow.m`, `SEBOSXBrowserController.m` |
 
 ---
 
-## Detailed Breakdown of Changes
+## 4. How to Build
 
-### 1. Process Termination & App Killing
-- **Problem in Dev**: SEB scans running processes on startup and immediately kills unauthorized applications (Cursor, VS Code, Chrome, Terminal, Docker, Spotify, etc.).
-- **Code Modifications**:
-  - `Classes/Categories/NSRunningApplication+SEB.m`:
-    - `+ (BOOL)killProcessWithPID:(pid_t)processPID error:(NSError* _Nullable *)error`: Under `#if DEBUG`, logs a warning and returns `YES` without calling `kill(processPID, 9)`.
-    - `+ (BOOL)killApplicationWithBundleIdentifier:(NSString *)bundleID`: Under `#if DEBUG`, returns `YES` immediately.
-    - `- (BOOL)kill`: Under `#if DEBUG`, returns `YES` immediately.
-  - `Classes/ProcessMonitoring/ProcessManager.m`:
-    - `- (void)updateMonitoredProcesses`: Under `#if DEBUG`, the loop populating `self.prohibitedApplications` and `self.prohibitedBSDProcesses` is bypassed, keeping prohibited lists empty.
-  - `Classes/SEBController.m`:
-    - `- (void)terminateApplications:...`: Under `#if DEBUG`, logs suppression and directly calls `conditionallyContinueAfterTerminatingAppsWithCallback:` to proceed without closing any app.
-
-### 2. Screenshots & Screen Recording
-- **Problem in Dev**: SEB sets `NSWindowSharingNone` on its windows (which instructs the macOS WindowServer to black out window contents in any screenshot or screen share) and runs legacy screenshot shortcut redirection.
-- **Code Modifications**:
-  - `Classes/BrowserComponents/SEBOSXBrowserController.m`:
-    - In `openBrowserWindowWithURL:` and `- (void)webViewShow:`: Under `#if DEBUG`, window sharing is set to `NSWindowSharingReadOnly`, allowing macOS screenshot shortcuts (`Cmd + Shift + 4`, `Cmd + Shift + 5`) and screen recordings to capture window contents.
-  - `Classes/SystemManager/SEBSystemManager.m`:
-    - `- (void)preventScreenCapture`: Under `#if DEBUG`, returns immediately without redirecting screenshots or intercepting shortcuts.
-
-### 3. Kiosk Mode, Dock, Menu Bar, and App Switching
-- **Problem in Dev**: Kiosk mode hides the Dock and Menu Bar and traps focus inside SEB by disabling `Cmd+Tab` and force-quit shortcuts.
-- **Code Modifications**:
-  - `Classes/SEBController.m`:
-    - `- (void)startKioskModeThirdPartyAppsAllowed:overrideShowMenuBar:`: Under `#if DEBUG`, `presentationOptions` is assigned `NSApplicationPresentationDefault`, and `elevateWindowLevels` is forced to `NO`.
-    - `- (void)coverScreens`: Under `#if DEBUG`, returns immediately without generating fullscreen blackout cap windows across displays.
-
-### 4. Window Display & Layering
-- **Problem in Dev**: The window covers the entire display and sits on an elevated window level, preventing side-by-side editing or clicking back to the IDE.
-- **Code Modifications**:
-  - `Classes/BrowserComponents/SEBBrowserWindow.m`:
-    - `- (void)setCalculatedFrameOnScreen:...`: Under `#if DEBUG`, defaults to a centered window occupying 80% screen width and height.
-  - `Classes/BrowserComponents/SEBOSXBrowserController.m`:
-    - `- (void)setLevelForBrowserWindow:elevateLevels:`: Under `#if DEBUG`, forces `elevateLevels = NO`, ensuring the window sits at `NSNormalWindowLevel` (layer 0) alongside standard macOS apps.
-
----
-
-## How to Toggle Between Modes
-
-Xcode automatically defines `DEBUG=1` when running the **Debug** configuration.
-
-1. **Development & Testing (All developer conveniences enabled)**:
-   - Run via Xcode with scheme set to **Debug** (`Cmd + R`).
-   - Or build via command line:
-     ```bash
-     xcodebuild -scheme "Safe Exam Browser" -configuration Debug
-     ```
-
-2. **Production Exam (Full strict lockdown)**:
-   - In Xcode: **Product > Archive** or set scheme Run configuration to **Release**.
-   - Or build via command line:
-     ```bash
-     xcodebuild -scheme "Safe Exam Browser" -configuration Release
-     ```
-   - In Release mode, all `#if DEBUG` code blocks are completely ignored by the compiler, maintaining 100% of the original Safe Exam Browser exam security specifications.
+1. **Development & Testing**:
+   Open `SafeExamBrowser.xcworkspace` in Xcode, ensure the active scheme is set to **Debug**, and press **`Cmd + R`**.
+2. **Production Distribution**:
+   In Xcode, select **Product > Archive** (or build with `-configuration Release`). The compiler will strictly ignore all debug branches and output the full kiosk exam browser.

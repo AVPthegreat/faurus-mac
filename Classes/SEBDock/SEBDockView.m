@@ -38,7 +38,12 @@
 - (void)drawRect:(NSRect)dirtyRect {
     [super drawRect:dirtyRect];
     
-    // Drawing code here.
+    // Faurus dark flame dock styling (#0a0705 with subtle flame top accent)
+    [[NSColor colorWithCalibratedRed:10.0/255.0 green:7.0/255.0 blue:5.0/255.0 alpha:0.96] setFill];
+    NSRectFill(dirtyRect);
+    
+    [[NSColor colorWithCalibratedRed:255.0/255.0 green:122.0/255.0 blue:61.0/255.0 alpha:0.35] setStroke];
+    [NSBezierPath strokeLineFromPoint:NSMakePoint(dirtyRect.origin.x, dirtyRect.size.height - 1) toPoint:NSMakePoint(dirtyRect.origin.x + dirtyRect.size.width, dirtyRect.size.height - 1)];
 }
 
 

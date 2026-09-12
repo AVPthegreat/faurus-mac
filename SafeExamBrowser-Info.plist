@@ -5,30 +5,30 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>Safe Exam Browser</string>
+	<string>Faurus Exam Browser</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
-				<string>mydoc</string>
+				<string>faurus</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string></string>
+			<string>SEBDocumentIcon.icns</string>
 			<key>CFBundleTypeIconSystemGenerated</key>
-			<integer>1</integer>
+			<integer>0</integer>
 			<key>CFBundleTypeName</key>
-			<string>DocumentType</string>
-			<key>CFBundleTypeOSTypes</key>
-			<array>
-				<string>????</string>
-			</array>
+			<string>Faurus Exam Configuration</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
-			<string>Default</string>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>app.faurus.config</string>
+			</array>
 			<key>NSDocumentClass</key>
-			<string>SEBBrowserWindowDocument</string>
+			<string></string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeExtensions</key>
@@ -44,7 +44,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
-			<string>Default</string>
+			<string>Alternate</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>org.safeexambrowser.seb</string>
@@ -60,7 +60,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>SafeExamBrowser</string>
+	<string>Faurus</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -69,6 +69,30 @@
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
 	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>CFBundleURLIconFile</key>
+			<string>SEBDocumentIcon.icns</string>
+			<key>CFBundleURLName</key>
+			<string>app.faurus.browser</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>faurus</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>CFBundleURLIconFile</key>
+			<string>SEBDocumentIcon.icns</string>
+			<key>CFBundleURLName</key>
+			<string>app.faurus.browsers</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fauruss</string>
+			</array>
+		</dict>
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
@@ -106,7 +130,7 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Camera access is required for web applications / remote proctoring.</string>
+	<string>Camera access is required for proctored assessments.</string>
 	<key>NSCrossWebsiteTrackingUsageDescription</key>
 	<string>Cross-website tracking may be needed by some web applications.</string>
 	<key>NSDesktopFolderUsageDescription</key>
@@ -116,13 +140,13 @@
 	<key>NSDownloadsFolderUsageDescription</key>
 	<string>Downloaded files are by default saved to the Downloads folder.</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>© 2010-2026 Daniel R. Schneider, ETH Zurich, IT Services, based on the original idea of Safe Exam Browser by Stefan Schneider, University of Giessen</string>
+	<string>© 2026 Faurus. All Rights Reserved.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Location access is required to display nearby Wi-Fi network names. No geographical location is determined!</string>
+	<string>Location access is required to display nearby Wi-Fi network names.</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Microphone access is required for web applications / remote proctoring.</string>
+	<string>Microphone access is required for proctored assessments.</string>
 	<key>NSPrincipalClass</key>
 	<string>$(PRODUCT_MODULE_NAME).SEBApplication</string>
 	<key>NSRequiresAquaSystemAppearance</key>
@@ -131,6 +155,32 @@
 	<true/>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Faurus Exam Configuration</string>
+			<key>UTTypeIconFile</key>
+			<string>SEBDocumentIcon.icns</string>
+			<key>UTTypeIcons</key>
+			<dict>
+				<key>UTTypeIconBadgeName</key>
+				<string></string>
+			</dict>
+			<key>UTTypeIdentifier</key>
+			<string>app.faurus.config</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>faurus</string>
+				</array>
+				<key>public.mime-type</key>
+				<string>application/x-faurus</string>
+			</dict>
+		</dict>
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>

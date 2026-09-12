@@ -47,7 +47,7 @@
 
 - (void)drawRect:(NSRect)dirtyRect {
     // Load the image.
-    NSImage *anImage = [NSImage imageNamed:@"AboutSEB"];
+    NSImage *anImage = [NSImage imageNamed:@"AboutFaurus"] ?: [NSImage imageNamed:@"AboutSEB"];
     
     // Find the point at which to draw it.
     NSPoint backgroundCenter;

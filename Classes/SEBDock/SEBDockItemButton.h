@@ -70,6 +70,7 @@
 @property (readwrite) BOOL allowManualStart;
 @property (readwrite) BOOL isFirstDockItem;
 @property (readwrite) BOOL isLastDockItem;
+@property (assign) BOOL isMouseOver;
 @property (assign, nonatomic) SEL secondaryAction;
 
 @property (strong, nonatomic) id<SEBDockItemButtonDelegate> delegate;

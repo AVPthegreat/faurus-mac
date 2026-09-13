@@ -33,6 +33,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface SEBDockView : NSView
+@interface SEBDockView : NSVisualEffectView
 
 @end

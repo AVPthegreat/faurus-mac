@@ -50,11 +50,21 @@
     
     batteryLevelWidth = batteryIconWidthConstraint.constant - batteryLevelLeading.constant - batteryLevelConstraint.constant;
     
-    systemGreenCGColor = [[NSColor systemGreenColor] CGColor];
-    systemOrangeCGColor = [[NSColor systemOrangeColor] CGColor];
-    systemRedCGColor = [[NSColor systemRedColor] CGColor];
+    systemGreenCGColor = [[NSColor colorWithCalibratedRed:52.0/255.0 green:199.0/255.0 blue:89.0/255.0 alpha:1.0] CGColor];
+    systemOrangeCGColor = [[NSColor colorWithCalibratedRed:255.0/255.0 green:149.0/255.0 blue:0.0/255.0 alpha:1.0] CGColor];
+    systemRedCGColor = [[NSColor colorWithCalibratedRed:255.0/255.0 green:59.0/255.0 blue:48.0/255.0 alpha:1.0] CGColor];
 
     [backgroundView setWantsLayer:YES];
+    backgroundView.layer.cornerRadius = 2.0;
+    
+    // Modern status capsule styling
+    if (self.view) {
+        [self.view setWantsLayer:YES];
+        self.view.layer.cornerRadius = 6.0;
+        self.view.layer.backgroundColor = [NSColor colorWithCalibratedWhite:1.0 alpha:0.07].CGColor;
+        self.view.layer.borderColor = [NSColor colorWithCalibratedWhite:1.0 alpha:0.14].CGColor;
+        self.view.layer.borderWidth = 1.0;
+    }
     
     _batteryLevel = 100;
     [backgroundView.layer setBackgroundColor:systemGreenCGColor];

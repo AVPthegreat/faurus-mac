@@ -61,6 +61,9 @@
             [self.dockWindow setSharingType:NSWindowSharingNone];
         }
         self.dockWindow.height = dockHeight;
+        self.dockWindow.opaque = NO;
+        self.dockWindow.backgroundColor = [NSColor clearColor];
+        self.dockWindow.hasShadow = YES;
         
         NSView *superview = [self.dockWindow contentView];
         SEBDockView *dockView = [[SEBDockView alloc] initWithFrame:initialContentRect];

@@ -66,8 +66,21 @@
     }
     CGFloat fontSize = dockScale * SEBDefaultDockTimeItemFontSize;
     
-    NSFont *newFont = [NSFont fontWithName:itemFont.fontName size:fontSize];
-    timeTextField.font = newFont;
+    if (@available(macOS 10.15, *)) {
+        timeTextField.font = [NSFont monospacedDigitSystemFontOfSize:fontSize weight:NSFontWeightMedium];
+    } else {
+        timeTextField.font = [NSFont boldSystemFontOfSize:fontSize];
+    }
+    timeTextField.textColor = [NSColor colorWithCalibratedWhite:0.92 alpha:1.0];
+    
+    // Modern status capsule styling
+    if (self.view) {
+        [self.view setWantsLayer:YES];
+        self.view.layer.cornerRadius = 6.0;
+        self.view.layer.backgroundColor = [NSColor colorWithCalibratedWhite:1.0 alpha:0.07].CGColor;
+        self.view.layer.borderColor = [NSColor colorWithCalibratedWhite:1.0 alpha:0.14].CGColor;
+        self.view.layer.borderWidth = 1.0;
+    }
     
     [timeTextField setObjectValue:dateNow];
     

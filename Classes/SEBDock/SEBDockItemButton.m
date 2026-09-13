@@ -254,14 +254,60 @@ self.highlighted = false;
 
 - (void)drawRect:(NSRect)dirtyRect
 {
+    BOOL isQuit = (self.action == @selector(quitButtonPressed));
+    NSRect pillRect = NSInsetRect(self.bounds, 2.0, 2.0);
+    NSBezierPath *pillPath = [NSBezierPath bezierPathWithRoundedRect:pillRect xRadius:6.0 yRadius:6.0];
+    
+    if (mouseDown || self.highlighted) {
+        if (isQuit) {
+            [[NSColor colorWithCalibratedRed:255.0/255.0 green:59.0/255.0 blue:48.0/255.0 alpha:0.42] setFill];
+            [pillPath fill];
+            [[NSColor colorWithCalibratedRed:255.0/255.0 green:59.0/255.0 blue:48.0/255.0 alpha:0.75] setStroke];
+            [pillPath setLineWidth:1.0];
+            [pillPath stroke];
+        } else {
+            [[NSColor colorWithCalibratedWhite:1.0 alpha:0.22] setFill];
+            [pillPath fill];
+            [[NSColor colorWithCalibratedWhite:1.0 alpha:0.35] setStroke];
+            [pillPath setLineWidth:1.0];
+            [pillPath stroke];
+        }
+    } else if (self.isMouseOver) {
+        if (isQuit) {
+            [[NSColor colorWithCalibratedRed:255.0/255.0 green:59.0/255.0 blue:48.0/255.0 alpha:0.24] setFill];
+            [pillPath fill];
+            [[NSColor colorWithCalibratedRed:255.0/255.0 green:59.0/255.0 blue:48.0/255.0 alpha:0.55] setStroke];
+            [pillPath setLineWidth:1.0];
+            [pillPath stroke];
+        } else {
+            [[NSColor colorWithCalibratedWhite:1.0 alpha:0.12] setFill];
+            [pillPath fill];
+            [[NSColor colorWithCalibratedWhite:1.0 alpha:0.22] setStroke];
+            [pillPath setLineWidth:1.0];
+            [pillPath stroke];
+        }
+    } else if (isQuit) {
+        // Subtle red pill indicator for Quit button at rest so candidates easily spot the exit button
+        [[NSColor colorWithCalibratedRed:255.0/255.0 green:59.0/255.0 blue:48.0/255.0 alpha:0.10] setFill];
+        [pillPath fill];
+        [[NSColor colorWithCalibratedRed:255.0/255.0 green:59.0/255.0 blue:48.0/255.0 alpha:0.28] setStroke];
+        [pillPath setLineWidth:1.0];
+        [pillPath stroke];
+    }
+    
     [super drawRect:dirtyRect];
 
-    [self createTrackingArea];
+    if (!trackingArea) {
+        [self createTrackingArea];
+    }
 }
 
 
 - (void)mouseEntered:(NSEvent *)theEvent
 {
+    self.isMouseOver = YES;
+    [self setNeedsDisplay:YES];
+    
     // Don't show the icon title label while the dock item menu (e.g. the open
     // windows list) is open: it would overlap the menu, also obscuring the menu
     // titles in composited screen proctoring screen shots under AAC.
@@ -277,6 +323,8 @@ self.highlighted = false;
 
 - (void)mouseExited:(NSEvent *)theEvent
 {
+    self.isMouseOver = NO;
+    [self setNeedsDisplay:YES];
     [self.labelPopover close];
 }
 
@@ -284,6 +332,7 @@ self.highlighted = false;
 - (void)updateTrackingAreas
 {
     [self removeTrackingArea:trackingArea];
+    trackingArea = nil;
     [self createTrackingArea];
     [super updateTrackingAreas]; // Needed, according to the NSView documentation
 }
@@ -291,6 +340,10 @@ self.highlighted = false;
 
 - (void) createTrackingArea
 {
+    if (trackingArea) {
+        [self removeTrackingArea:trackingArea];
+        trackingArea = nil;
+    }
     int opts = (NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways);
     trackingArea = [ [NSTrackingArea alloc] initWithRect:[self bounds]
                                                  options:opts
@@ -303,8 +356,10 @@ self.highlighted = false;
                               fromView: nil];
     
     if (NSPointInRect(mouseLocation, [self bounds])) {
+        self.isMouseOver = YES;
         [self mouseEntered: nil];
     } else {
+        self.isMouseOver = NO;
         [self mouseExited: nil];
     }
 }

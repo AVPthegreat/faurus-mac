@@ -35,15 +35,33 @@
 
 @implementation SEBDockView
 
+- (instancetype)initWithFrame:(NSRect)frameRect {
+    self = [super initWithFrame:frameRect];
+    if (self) {
+        if (@available(macOS 10.14, *)) {
+            self.material = NSVisualEffectMaterialHUDWindow;
+        } else {
+            self.material = NSVisualEffectMaterialDark;
+        }
+        self.blendingMode = NSVisualEffectBlendingModeBehindWindow;
+        self.state = NSVisualEffectStateActive;
+        self.wantsLayer = YES;
+    }
+    return self;
+}
+
 - (void)drawRect:(NSRect)dirtyRect {
     [super drawRect:dirtyRect];
     
-    // Faurus dark flame dock styling (#0a0705 with subtle flame top accent)
-    [[NSColor colorWithCalibratedRed:10.0/255.0 green:7.0/255.0 blue:5.0/255.0 alpha:0.96] setFill];
-    NSRectFill(dirtyRect);
+    // Modern sleek dark acrylic tint (#0d0b0f at 82% opacity over frosted glass)
+    [[NSColor colorWithCalibratedRed:13.0/255.0 green:11.0/255.0 blue:15.0/255.0 alpha:0.82] setFill];
+    NSRectFillUsingOperation(dirtyRect, NSCompositingOperationSourceOver);
     
-    [[NSColor colorWithCalibratedRed:255.0/255.0 green:122.0/255.0 blue:61.0/255.0 alpha:0.35] setStroke];
-    [NSBezierPath strokeLineFromPoint:NSMakePoint(dirtyRect.origin.x, dirtyRect.size.height - 1) toPoint:NSMakePoint(dirtyRect.origin.x + dirtyRect.size.width, dirtyRect.size.height - 1)];
+    // Top specular highlight line (subtle flame accent fading to clean Apple white hairline)
+    NSGradient *topBorderGradient = [[NSGradient alloc] initWithStartingColor:[NSColor colorWithCalibratedRed:255.0/255.0 green:122.0/255.0 blue:61.0/255.0 alpha:0.45]
+                                                                  endingColor:[NSColor colorWithCalibratedWhite:1.0 alpha:0.12]];
+    NSRect topBorderRect = NSMakeRect(dirtyRect.origin.x, self.bounds.size.height - 1.0, dirtyRect.size.width, 1.0);
+    [topBorderGradient drawInRect:topBorderRect angle:0];
 }
 
 

@@ -54,8 +54,13 @@
     }
     CGFloat scaledSize = itemSize * dockScale;
 
-    // Create container view
+    // Create container view with status capsule styling
     _view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, scaledSize, scaledSize)];
+    [_view setWantsLayer:YES];
+    _view.layer.cornerRadius = 6.0;
+    _view.layer.backgroundColor = [NSColor colorWithCalibratedWhite:1.0 alpha:0.07].CGColor;
+    _view.layer.borderColor = [NSColor colorWithCalibratedWhite:1.0 alpha:0.14].CGColor;
+    _view.layer.borderWidth = 1.0;
 
     // Create WiFi icon button
     wifiIconButton = [[NSButton alloc] initWithFrame:NSMakeRect(0, 0, scaledSize, scaledSize)];
